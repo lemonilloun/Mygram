@@ -7,7 +7,6 @@ bool run = true, aut, act = true;
 string delim = ":";
 string d = ".txt";
 
-// никита 
 class Users {
 private:
     string id;
@@ -115,7 +114,7 @@ public:
     ~Users(){}
 };
 
-class RegedUsers : public Users { 
+class RegedUsers: public Users { 
 private:
     string user1;
     string pas;
