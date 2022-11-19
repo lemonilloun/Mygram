@@ -1,11 +1,47 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <stdio.h>
 using namespace std;
 int doin;
 bool run = true, aut, act = true;
 string delim = ":";
 string d = ".txt";
+
+struct sockaddr_in local;
+int s;
+int sl;
+char rc;
+bool isExit = false;
+const int bufsize = 1024;
+char buf[bufsize];
+
+char do_buffer(string user_name, string user_pas, string comm) {
+    string temp = user_name + ":" + user_pas + ":" +comm;
+    char buf[1024];
+    strcpy(buf, temp.c_str());
+    return buf;
+}
+
+char recvive(int socket, char buffs, int n){
+    
+    sl = accept(socket, NULL, NULL);
+    if(sl<0){
+        perror("ошибка вызова accept");
+        exit(1);
+    }
+    buffs = recv(sl, buf, bufsize, 0);
+
+    return buffs;
+
+}
+
+char send_com(int socket){
+
+}
 
 class Users {
 private:
@@ -13,10 +49,6 @@ private:
     string paswwd;
 public:
 
-    Users(){
-        id = "user";
-        paswwd = "user";
-    }
     
     string GetId(){
         return id;
@@ -395,6 +427,32 @@ cout << "-------------------------------------------------------" << endl;
 };
 
 int main(){
+
+    // запуск сервера
+
+    local.sin_family = AF_INET;
+    local.sin_port = htons(10050);
+    local.sin_addr.s_addr = htonl(INADDR_ANY);
+    s = socket(AF_INET, SOCK_STREAM, 0);
+
+    if(s<0){
+        perror("ошибка вызова socket");
+        exit(1);
+    }
+    rc = ::bind(s, (struct sockaddr *)&local, sizeof(local));
+    if(rc<0){
+        perror("ошибка вызова bind");
+        exit(1);
+    }
+
+    rc = listen(s, 5);
+    if(rc){
+        perror("ошибка вызова listen");
+        exit(1);
+    }
+    
+    //
+
     Users user;
     string ad_id;
     string ad_pas;
@@ -402,8 +460,8 @@ int main(){
     bool log = true;
     while(log)
     {
-    cout << "Login: "; cin >> ad_id;
-    cout << "Password: "; cin >> ad_pas;
+    cout << "Login: "; cin >> ad_id; user.SetId(ad_id);
+    cout << "Password: "; cin >> ad_pas; user.SetPas(ad_pas);
     aut = user.log_in(ad_id, ad_pas, "0");
     string sogl;
     while(run){
