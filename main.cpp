@@ -16,40 +16,23 @@ int s;
 int sl;
 char rc;
 bool isExit = false;
-const int bufsize = 1024;
-char buf[bufsize];
+int bufsize = 1024;
 
-char do_buffer(string user_name, string user_pas, string comm) {
-    string temp = user_name + ":" + user_pas + ":" +comm;
-    char buf[1024];
-    strcpy(buf, temp.c_str());
-    return buf;
+
+
+void send_com(char* bufer){
+        
 }
 
-char recvive(int socket, char buffs, int n){
-    
-    sl = accept(socket, NULL, NULL);
-    if(sl<0){
-        perror("ошибка вызова accept");
-        exit(1);
-    }
-    buffs = recv(sl, buf, bufsize, 0);
-
-    return buffs;
-
-}
-
-char send_com(int socket){
-
-}
 
 class Users {
 private:
     string id;
     string paswwd;
+    char buf[1024];
 public:
 
-    
+
     string GetId(){
         return id;
     }
@@ -122,23 +105,19 @@ public:
         
         else{
             uzeri.close();
-            ofstream uzero;
-            uzero.open("users/"+path);
-            //uzer.open("users/"+path, ofstream::app);
-            if(!uzero.is_open()){
-                cout << "Ошибка создания файла";
-                return false;
-            }else{
-                uzero << paswwd << endl;
-                //uzer << "\n"+pas;
-                }
-            uzero.close();
-             // добавление пользователя в лист
-        ofstream fr;
-        fr.open("user_list.txt", ofstream::app);
-        fr << id << "\n";
-        fr.close();
-        //
+            ofstream fr;
+            fr.open("user_list.txt", ofstream::app);
+            fr << id + delim + paswwd << "\n";
+            fr.close();
+            for(int i=0; i < 1024; i++){
+                buf[i] = ' ';
+            }
+            string mes = "1 " +  user_id + " " + user_pas + " *";
+            for(int i=0; i < mes.length(); i++){
+                buf[i] = mes[i];
+            }
+
+            send(sl, buf, bufsize, 0);
             }
     return true;
     }
@@ -439,6 +418,9 @@ int main(){
         perror("ошибка вызова socket");
         exit(1);
     }
+
+    cout << "Creating server" << endl;
+
     rc = ::bind(s, (struct sockaddr *)&local, sizeof(local));
     if(rc<0){
         perror("ошибка вызова bind");
@@ -450,6 +432,14 @@ int main(){
         perror("ошибка вызова listen");
         exit(1);
     }
+
+    sl = accept(s, NULL, NULL);
+    if(sl<0){
+        perror("ошибка вызова accept");
+        exit(1);
+    }
+
+    cout << "Hi server" << endl;
     
     //
 
