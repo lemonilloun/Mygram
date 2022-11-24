@@ -20,10 +20,18 @@ int bufsize = 1024;
 
 
 
-void send_com(char* bufer){
-        
+char* make_buf(string mes, char* buf){
+    for(int i=0; i < mes.length(); i++){
+        buf[i] = mes[i];
+    }
+    return buf;
 }
 
+void buf_date(char* buf){
+    for(int i=0; i < 1024; i++){
+        buf[i] = '*';
+    }
+}
 
 class Users {
 private:
@@ -32,6 +40,12 @@ private:
     char buf[1024];
 public:
 
+   char* GetBuffer(){
+    for(int i=0; i < 1024; i++){
+        buf[i] = '*';
+    }
+        return buf;
+    }
 
     string GetId(){
         return id;
@@ -109,15 +123,12 @@ public:
             fr.open("user_list.txt", ofstream::app);
             fr << id + delim + paswwd << "\n";
             fr.close();
-            for(int i=0; i < 1024; i++){
-                buf[i] = ' ';
-            }
-            string mes = "1 " +  user_id + " " + user_pas + " *";
-            for(int i=0; i < mes.length(); i++){
-                buf[i] = mes[i];
-            }
+            
+            buf_date(buf);
 
-            send(sl, buf, bufsize, 0);
+            string mes = "1 " +  user_id + " " + user_pas + " *";
+            send(sl, make_buf(mes, buf), bufsize, 0);
+            
             }
     return true;
     }
@@ -131,6 +142,8 @@ private:
     string pas;
     string access;
 public:
+
+   char* buf = GetBuffer();
 
     RegedUsers(string aded_id, string aded_ps){
         user1 = aded_id;
@@ -170,9 +183,16 @@ public:
         us2 << user2 << endl;
         us2.close();
         ret = false;
+
+        // отправка клиенту буффер
+        
+        string mes = "2 " +  user1 + " " + user2 + " *";
+        send(sl, make_buf(mes, buf), bufsize, 0);
+    
         }else{
         cout << "Подумай" << endl;
         }
+
     }
 
     }
@@ -233,6 +253,8 @@ public:
             wrmf.open(path, ofstream::app);
             wrmf << user1+": " + line << "\n";
             wrmf.close();
+
+
         }else{
             wrmt.close();
             path = "users/messages/" + user2 + "To" + user1 + ".txt";
@@ -241,6 +263,9 @@ public:
             wrmf << user1+": " + line << "\n";
             wrmf.close();
         }
+        // отправка клиенту буффера 
+        string mes = "3 " + user1 + " " + user2 + " " + line + "*";
+        send(sl, make_buf(mes, buf), bufsize, 0);
         sev = false;
     }
     else{
@@ -331,6 +356,9 @@ cout << "-------------------------------------------------------" << endl;
             while (run == "1")
             {
                 string tt; cout << "Введите текст: "; getline(cin, tt); pr << "status: " + tt << endl;
+                
+                string mes = "4 " + user1 + " " + tt + "*";
+                send(sl, make_buf(mes, buf), bufsize, 0);
                 cout <<"Ввести что-то еще?\nда- 1\nнет - 0" << endl; cin >> run; 
                 if(run != "0" or run != "0"){
                     cout <<"Ошибка ввода: " << endl;
