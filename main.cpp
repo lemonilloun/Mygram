@@ -3,7 +3,6 @@
 #include <string>
 using namespace std;
 int doin;
-bool run = true, aut, act = true;
 string delim = ":";
 string d = ".txt";
 
@@ -13,11 +12,6 @@ private:
     string paswwd;
 public:
 
-    Users(){
-        id = "user";
-        paswwd = "user";
-    }
-    
     string GetId(){
         return id;
     }
@@ -35,7 +29,7 @@ public:
     }
 
     bool check_uzers(string id){
-        string path = "user_list.txt";
+        string path = "users_list.txt";
         string str;
         size_t pos = 0;
         string us_n, token;
@@ -58,12 +52,14 @@ public:
     return 0;
     }
 
-    bool log_in(string user_id, string user_pas, string des){
-        string path = user_id + d;
+    bool log_in(string des){
+        bool dis;
+        string path = "users/users_list.txt";
+        cout << path << endl;
         size_t pos = 0;
         string us_n, us_pas, token;
         ifstream uzeri;
-        uzeri.open("users/"+path);
+        uzeri.open(path);
         cout << "\n";
         if(uzeri.is_open()){
             string str;
@@ -72,20 +68,23 @@ public:
                 pos = str.find(delim);
                 us_n = str.substr(0, str.find(pos));
                 if(us_n == id){
+                    cout << id << " " << us_n << endl;
                     pos = pos + delim.length();
                     us_pas = str.substr(pos,-1);
-                    if(us_pas == user_pas){
+                    if(us_pas == paswwd){
+                        cout << paswwd << " " << us_pas << endl;
                         cout << "Вход в аккаунт успешно выполнен" << endl;
                         cout << "\n";
+                        dis = true;
                         break;
-                                    }   
+                                        }   
                                 }
-                            }
+                }
         uzeri.close();
         }
         else if (des == "0")
         {
-            return false;
+            dis = false;
         }
         
         else{
@@ -106,9 +105,10 @@ public:
         fr.open("user_list.txt", ofstream::app);
         fr << id << "\n";
         fr.close();
+        dis = true;
         //
             }
-    return true;
+        return dis;
     }
 
     ~Users(){}
@@ -402,22 +402,31 @@ int main(){
     bool log = true;
     while(log)
     {
-    cout << "Login: "; cin >> ad_id;
-    cout << "Password: "; cin >> ad_pas;
-    aut = user.log_in(ad_id, ad_pas, "0");
-    string sogl;
+    bool run = true, aut = false, act = true;
+    cout << "Login: "; cin >> ad_id; user.SetId(ad_id);
+    cout << "Password: "; cin >> ad_pas; user.SetPas(ad_pas);
+    aut = user.log_in("0"); cout << "Проходим проверку...\n" << aut << endl;
+    char sogl=0;
     while(run){
-    if(!aut){
-        cout << "Вы хотите повторно авторизоваться или создать нового пользователя\n1. - да; 2. - нет" << endl; cin >> sogl;
-        if(sogl == "1"){
-            cout << "Login: "; cin >> ad_id; 
-            cout << "Password: "; cin >> ad_pas;
-            aut = user.log_in(ad_id, ad_pas, "1");
-        }
-        else{
-            log = 0;
-            run = 0;
-            break;}
+        if(!aut){
+            cout << "Повторно авторизоваться - 1\nСоздать новый аккаунт - 2\nВыйти - любая другая клавиша" << endl; cin >> sogl;
+            if(sogl == 49){
+                cout << "Login: "; cin >> ad_id; user.SetId(ad_id);
+                cout << "Password: "; cin >> ad_pas; user.SetPas(ad_pas);
+                aut = user.log_in("0");
+                }   
+            else if (sogl == 50)
+            {
+            cout << "Login: "; cin >> ad_id; user.SetId(ad_id);
+            cout << "Password: "; cin >> ad_pas; user.SetPas(ad_pas);
+            aut = user.log_in("1");   
+            }
+        
+            else{
+                log = 0;
+                run = 0;
+                break;
+                }
     }
     else{
         RegedUsers r_user(ad_id, ad_pas);
@@ -428,7 +437,7 @@ int main(){
             switch (doin)
             {
             case 1: // Друзья
-                cout << "1. - Посмотреть список друзей\n2. - Добавить в друзя\n"; int t; cin >> t; cin.ignore();
+                cout << "Посмотреть список друзей - 1\nДобавить в друзя - 2\n"; int t; cin >> t; cin.ignore();
                 switch (t)
                 {
                 case 1:
@@ -464,6 +473,7 @@ int main(){
         }
         }
         run = 0;
+        aut = 0;
         }
     
     }

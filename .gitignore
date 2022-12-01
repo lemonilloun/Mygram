@@ -1,8 +1,5 @@
 main
-skel
 tcpserv
-main.dSYM
-user
+/main.dSYM
 /.vscode
-user_list.txt
-/users
+
