@@ -13,7 +13,7 @@ string delim = " ";
 void reg(string user_id, string user_pas){
     ofstream fr;
     fr.open("user_list.txt", ofstream::app);
-    fr << user_id + delim + user_pas << "\n";
+    fr << user_id + ":" + user_pas << "\n";
     fr.close();
  }
 
@@ -93,33 +93,17 @@ void set_status(string user, string tt){
  // запись из буффера в строку и разбиение строки на команду и информацию
 string* get_comand(char* bufa, int bufsize, int size = 4){
     string inform[size];
-    string recvd;
-
-     for(int i=0; i<bufsize; i++){
-        if(bufa[i] != '*'){
-            recvd += bufa[i];
-        }else{
+    string recvd; int count = 0;
+    for(int i = 0; i < bufsize; i++){
+        if(bufa[i] == '*'){
             break;
+        } else if(bufa[i] == ' ') {
+            count++;
+        } else{
+            inform[count] += bufa[i];
         }
     }
-
-    size_t pos = 0; //текущая позиция делиметра в строке
-    for(int i = 0; i < size; i++)
-    {
-        if(i == (size - 1)){
-            inform[i] = recvd;
-            cout << inform[i] << endl;
-        }else
-        {
-        pos = recvd.find(delim);
-        inform[i] = recvd.substr(0, pos);
-        pos += delim.length();
-        recvd = recvd.substr(pos, -1);
-
-        }
-        
-    }
-
+    cout << inform[0] << " " <<  inform[1] << " " << inform[2] << endl;
     return inform;
 }
 
@@ -135,8 +119,8 @@ int main(){
     buf_date(buffer);
 
     peer.sin_family = AF_INET;
-    peer.sin_port = htons(10050);
-    peer.sin_addr.s_addr = inet_addr("192.168.1.142");
+    peer.sin_port = htons(10055);
+    peer.sin_addr.s_addr = inet_addr("172.20.10.5");
 
 
     s = socket(AF_INET, SOCK_STREAM, 0);
@@ -157,30 +141,35 @@ int main(){
 
         //cout << "Server: ";
         recv(s, buffer, bufsize, 0);
-        
+        cout << buffer << endl;
         int run = buffer[0];
         switch (run)
         {
         case 49:
-            inform = get_comand(buffer,bufsize), 3;
-            buf_date(buffer);
-            reg(inform[1], inform[2]);
+            inform = get_comand(buffer,bufsize, 3);
+
+            cout << inform << endl;
+            //buf_date(buffer);
+            //reg(inform[1], inform[2]);
             break;
 
         case 50:
             inform = get_comand(buffer,bufsize, 3);
-            buf_date(buffer);
-            add_friend(inform[1], inform[2]);
+            cout << inform << endl;
+            //buf_date(buffer);
+            //add_friend(inform[1], inform[2]);
             break;
         case 51:
             inform = get_comand(buffer,bufsize, 4);
-            buf_date(buffer);
-            write(inform[1], inform[2], inform[3]);
+            cout << inform << endl;
+            //buf_date(buffer);
+            //write(inform[1], inform[2], inform[3]);
 
         case 52:
             inform = get_comand(buffer,bufsize, 3);
-            buf_date(buffer);
-            set_status(inform[1], inform[2]);
+            cout << inform << endl;
+            //buf_date(buffer);
+            //set_status(inform[1], inform[2]);
         default:
             break;
         }
